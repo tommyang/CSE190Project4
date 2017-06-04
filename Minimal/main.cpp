@@ -551,8 +551,8 @@ protected:
 		ovrVector3f renderEyeOffset[ovrEye_Count];
 		renderEyeOffset[0] = _viewScaleDesc.HmdToEyeOffset[0];
 		renderEyeOffset[1] = _viewScaleDesc.HmdToEyeOffset[1];
-		renderEyeOffset[0].x = std::min(std::max(defaultHmdToEyeOffset[0] - getIOD() / 2, -0.3f), 0.0f);
-		renderEyeOffset[1].x = std::min(std::max(defaultHmdToEyeOffset[1] + getIOD() / 2, 0.0f), 0.3f);
+		//renderEyeOffset[0].x = std::min(std::max(defaultHmdToEyeOffset[0] - getIOD() / 2, -0.3f), 0.0f);
+		//renderEyeOffset[1].x = std::min(std::max(defaultHmdToEyeOffset[1] + getIOD() / 2, 0.0f), 0.3f);
 		//if (getViewState() == 1) { renderEyeOffset[0].x = renderEyeOffset[1].x = 0.0f; }
 		/*
 		if (getViewState() == 1) { 
@@ -562,7 +562,7 @@ protected:
 			renderEyeOffset[1] = renderEyeOffset[0];
 		}
 		*/
-		std::cout << _viewScaleDesc.HmdToEyeOffset[0].x << " " << _viewScaleDesc.HmdToEyeOffset[1].x << std::endl;
+		//std::cout << _viewScaleDesc.HmdToEyeOffset[0].x << " " << _viewScaleDesc.HmdToEyeOffset[1].x << std::endl;
 		ovr_GetEyePoses(_session, frame, true, renderEyeOffset, eyePoses, &_sceneLayer.SensorSampleTime);
 
 		int curIndex;
@@ -573,6 +573,7 @@ protected:
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, curTexId, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		ovr::for_each_eye([&](ovrEyeType eye) {
+			/*
 			renderEye[eye] = lastEye[eye];
 			if (getTrackingState() == 0) {
 				renderEye[eye] = eyePoses[eye];
@@ -584,8 +585,8 @@ protected:
 				renderEye[eye].Orientation = eyePoses[eye].Orientation;
 			}
 			lastEye[eye] = renderEye[eye];
-
-			///*
+			*/
+			/*
 			if (getViewState() == 1) {
 				currentEye(ovrEye_Left);
 				const auto& vp = _sceneLayer.Viewport[eye];
@@ -602,16 +603,14 @@ protected:
 				if (eye == ovrEye_Right && getViewState() == 2) return;
 				renderScene(_eyeProjections[eye], ovr::toGlm(renderEye[eye]));
 			}
-			//*/
-			/*
+			*/
+			
 			currentEye(eye);
 			const auto& vp = _sceneLayer.Viewport[eye];
 			glViewport(vp.Pos.x, vp.Pos.y, vp.Size.w, vp.Size.h);
 			_sceneLayer.RenderPose[eye] = eyePoses[eye];
-			if (eye == ovrEye_Left && getViewState() == 3) return;
-			if (eye == ovrEye_Right && getViewState() == 2) return;
-			renderScene(_eyeProjections[eye], ovr::toGlm(renderEye[eye]));
-			*/
+			renderScene(_eyeProjections[eye], ovr::toGlm(eyePoses[eye]));
+			
 		});
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -629,10 +628,10 @@ protected:
 
 	virtual void renderScene(const glm::mat4 & projection, const glm::mat4 & headPose) = 0;
 	virtual void currentEye(ovrEyeType eye) = 0;
-	virtual int getViewState() = 0;
-	virtual int getTrackingState() = 0;
-	virtual float getIOD() = 0;
-	virtual float getCubeSize() = 0;
+	//virtual int getViewState() = 0;
+	//virtual int getTrackingState() = 0;
+	//virtual float getIOD() = 0;
+	//virtual float getCubeSize() = 0;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -652,9 +651,9 @@ struct SimScene {
 	Skybox * skybox;
 	GLint cubeShaderProgram, skyboxShaderProgram;
 
-	bool buttonAPressed = false, buttonBPressed = false, buttonXPressed = false;
-	int buttonA = 0, buttonB = 0, buttonX = 0;
-	float IOD = 0.0f, cubeSize = 0.03f;
+	//bool buttonAPressed = false, buttonBPressed = false, buttonXPressed = false;
+	//int buttonA = 0, buttonB = 0, buttonX = 0;
+	//float IOD = 0.0f, cubeSize = 0.03f;
 
 #define CUBE_VERTEX_SHADER_PATH "C:/Users/degu/Desktop/CSE190Project2/Minimal/shader.vert"
 #define CUBE_FRAGMENT_SHADER_PATH "C:/Users/degu/Desktop/CSE190Project2/Minimal/shader.frag"
@@ -674,33 +673,24 @@ public:
 		skybox = new Skybox();
 		skybox->toWorld = glm::mat4(1.0f);
 		cube = new Cube();
-		cube->toWorld = glm::scale(glm::mat4(1.0f), glm::vec3(cubeSize, cubeSize, cubeSize));
+		cube->toWorld = glm::mat4(1.0f);
 	}
 
 	void update() {
-		cube->toWorld = glm::scale(glm::mat4(1.0f), glm::vec3(cubeSize, cubeSize, cubeSize));
+		cube->toWorld = glm::mat4(1.0f);
 	}
 
 	void render(const mat4 & projection, const mat4 & modelview) {
 		// Use the shader of programID
-		if (buttonX != 0) {
-			glUseProgram(skyboxShaderProgram);
-			skybox->draw(skyboxShaderProgram, projection, modelview);
-		}
-		if (buttonX != 1) {
-			glUseProgram(cubeShaderProgram);
-			cube->draw(cubeShaderProgram, projection, modelview);
-		}
+		glUseProgram(skyboxShaderProgram);
+		skybox->draw(skyboxShaderProgram, projection, modelview);
+		glUseProgram(cubeShaderProgram);
+		cube->draw(cubeShaderProgram, projection, modelview);
 	}
 
 	void currentEye(int eyeIdx) {
 		curEyeIdx = eyeIdx;
-		if (buttonX == 3) {
-			skybox->useCubemap(3);
-		}
-		else {
-			skybox->useCubemap(curEyeIdx);
-		}
+		skybox->useCubemap(curEyeIdx);
 	}
 
 private:
@@ -735,6 +725,7 @@ protected:
 	}
 
 	void update() override {
+		/*
 		ovrInputState inputState;
 		if (OVR_SUCCESS(ovr_GetInputState(_session, ovrControllerType_Touch, &inputState))) {
 			if (inputState.Buttons & ovrButton_A) simScene->buttonAPressed = true;
@@ -761,6 +752,7 @@ protected:
 				else if (inputState.Thumbstick[ovrHand_Left].x < -0.5f) simScene->cubeSize = std::max(simScene->cubeSize - 0.001f, 0.001f);
 			}
 		}
+		*/
 		simScene->update();
 	}
 
@@ -776,10 +768,10 @@ protected:
 			simScene->currentEye(1);
 		}
 	}
-	int getViewState() { return simScene->buttonA; }
-	int getTrackingState() { return simScene->buttonB; }
-	float getIOD() { return simScene->IOD; }
-	float getCubeSize() { return simScene->cubeSize; }
+	//int getViewState() { return simScene->buttonA; }
+	//int getTrackingState() { return simScene->buttonB; }
+	//float getIOD() { return simScene->IOD; }
+	//float getCubeSize() { return simScene->cubeSize; }
 };
 
 // Execute our example class
