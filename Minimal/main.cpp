@@ -648,13 +648,21 @@ protected:
 #include "Sphere.h"
 #include "Model.h"
 #include "Skybox.h"
+
+#include "rpc/client.h"
+#include "rpc/server.h"
+
+#include <glm/gtc/type_ptr.hpp>
+
+rpc::server srv(8080);
+
 struct SimScene {
 	Cube * otherhead;
 	Cube * myhand;
 	Cube * otherhand;
 
 	Model * table;
-	Sphere * sphere;
+	Sphere * sphere;	
 	Skybox * skybox;
 	GLint cubeShaderProgram, sphereShaderProgram, skyboxShaderProgram, tableShaderProgram;
 
@@ -689,11 +697,34 @@ public:
 		skybox = new Skybox();
 		skybox->toWorld = glm::mat4(1.0f);
 		table = new Model("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/digital_x_free_25_ping_pong/X025_017.obj");
-		table->toWorld = glm::translate(glm::scale(mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f)), vec3(0.0f, -40.0f, -2.0f));
+		table->toWorld = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(0.02f, 0.02f, 0.02f)), glm::vec3(0.0f, -40.0f, -2.0f));
 		sphere = new Sphere();
 		sphere->toWorld = glm::translate(glm::scale(mat4(1.0f), vec3(10.0f, 10.0f, 10.0f)), vec3(0.0f, 10.0f, -10.0f));
 
 		myhand = new Cube();
+		otherhand = new Cube();
+		
+		srv.bind("setHandTransf", [this](string str) {
+			float tmp[16] = { 0.0f };
+			istringstream is(str);
+			for (int i = 0; i < 16; i++) is >> tmp[i];
+			otherhand->toWorld = glm::make_mat4(tmp);
+			std::cout << "set leap hand pos!!!!" << std::endl;
+		});
+		srv.bind("getHandTransf", [this]() {
+			float ret[16] = { 0.0 };
+			const float *pSource = (const float *)glm::value_ptr(myhand->toWorld);
+			for (int i = 0; i < 16; i++) {
+				ret[i] = pSource[i];
+			}
+			ostringstream os;
+			for (int i = 0; i<16; i++)
+				os << ret[i] << " ";
+
+			std::cout << "get oculus hand pos!!!!!" << std::endl;
+			return os.str();
+		});
+		srv.async_run(1);
 	}
 
 	void update() {
@@ -710,6 +741,7 @@ public:
 		//glUseProgram(sphereShaderProgram);
 		sphere->draw(cubeShaderProgram, projection, modelview);
 		myhand->draw(cubeShaderProgram, projection, modelview);
+		otherhand->draw(cubeShaderProgram, projection, modelview);
 
 		glUseProgram(tableShaderProgram);
 		glm::vec3 pointLightPosition;
@@ -746,7 +778,8 @@ class SimApp : public RiftApp {
 	std::shared_ptr<SimScene> simScene;
 
 public:
-	SimApp() {}
+	SimApp() {
+	}
 protected:
 
 	void initGl() override {
@@ -801,7 +834,7 @@ protected:
 		double displayMidpointSeconds = ovr_GetPredictedDisplayTime(_session, frame);
 		ovrTrackingState trackState = ovr_GetTrackingState(_session, displayMidpointSeconds, ovrTrue);
 		ovrPosef rightPose = trackState.HandPoses[ovrHand_Right].ThePose;
-		simScene->myhand->toWorld = ovr::toGlm(rightPose) * glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
+		simScene->myhand->toWorld = ovr::toGlm(rightPose) * glm::scale(glm::mat4(1.0f), glm::vec3(0.03f, 0.03f, 0.03f));
 		simScene->update();
 	}
 
