@@ -644,10 +644,15 @@ protected:
 
 #include <time.h>
 #include "Shader.h"
+#include "Cube.h"
 #include "Sphere.h"
 #include "Model.h"
 #include "Skybox.h"
 struct SimScene {
+	Cube * otherhead;
+	Cube * myhand;
+	Cube * otherhand;
+
 	Model * table;
 	Sphere * sphere;
 	Skybox * skybox;
@@ -687,6 +692,8 @@ public:
 		table->toWorld = glm::translate(glm::scale(mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f)), vec3(0.0f, -40.0f, -2.0f));
 		sphere = new Sphere();
 		sphere->toWorld = glm::translate(glm::scale(mat4(1.0f), vec3(10.0f, 10.0f, 10.0f)), vec3(0.0f, 10.0f, -10.0f));
+
+		myhand = new Cube();
 	}
 
 	void update() {
@@ -702,6 +709,8 @@ public:
 		//cube->draw(cubeShaderProgram, projection, modelview);
 		//glUseProgram(sphereShaderProgram);
 		sphere->draw(cubeShaderProgram, projection, modelview);
+		myhand->draw(cubeShaderProgram, projection, modelview);
+
 		glUseProgram(tableShaderProgram);
 		glm::vec3 pointLightPosition;
 		pointLightPosition = glm::vec3(-5.0f, 20.0f, -5.0f);
@@ -789,6 +798,10 @@ protected:
 			}
 		}
 		*/
+		double displayMidpointSeconds = ovr_GetPredictedDisplayTime(_session, frame);
+		ovrTrackingState trackState = ovr_GetTrackingState(_session, displayMidpointSeconds, ovrTrue);
+		ovrPosef rightPose = trackState.HandPoses[ovrHand_Right].ThePose;
+		simScene->myhand->toWorld = ovr::toGlm(rightPose) * glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
 		simScene->update();
 	}
 
