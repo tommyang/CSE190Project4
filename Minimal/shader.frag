@@ -11,6 +11,5 @@ uniform sampler2D myTextureSampler;
 void main()
 {
     // Color everything a hot pink color. An alpha of 1.0f means it is not transparent.
-	color = vec3(1.0f, 1.0f, 1.0f);
-    //color = texture(myTextureSampler, UV).rgb;
+	color = vec3(texture(myTextureSampler, UV).r, texture(myTextureSampler, UV).g, texture(myTextureSampler, UV).b);
 }

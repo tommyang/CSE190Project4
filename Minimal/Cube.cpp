@@ -118,7 +118,7 @@ GLuint Cube::loadCubemap() {
 	glBindTexture(GL_TEXTURE_2D, texture_ID);
 
 	// Load front
-	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/vr_test_pattern.ppm", width, height);
+	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/vr_test_pattern.ppm", width, height);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	glGenerateMipmap(GL_TEXTURE_2D);

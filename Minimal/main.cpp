@@ -644,28 +644,31 @@ protected:
 
 #include <time.h>
 #include "Shader.h"
-#include "Cube.h"
 #include "Sphere.h"
+#include "Model.h"
 #include "Skybox.h"
 struct SimScene {
-	Cube * cube;
+	Model * table;
 	Sphere * sphere;
 	Skybox * skybox;
-	GLint cubeShaderProgram, sphereShaderProgram, skyboxShaderProgram;
+	GLint cubeShaderProgram, sphereShaderProgram, skyboxShaderProgram, tableShaderProgram;
 
 	//bool buttonAPressed = false, buttonBPressed = false, buttonXPressed = false;
 	//int buttonA = 0, buttonB = 0, buttonX = 0;
 	//float IOD = 0.0f, cubeSize = 0.03f;
 
-#define CUBE_VERTEX_SHADER_PATH "C:/Users/degu/Desktop/CSE190Project4/Minimal/shader.vert"
-#define CUBE_FRAGMENT_SHADER_PATH "C:/Users/degu/Desktop/CSE190Project4/Minimal/shader.frag"
+#define CUBE_VERTEX_SHADER_PATH "C:/Users/tiyang/Desktop/CSE190Project4/Minimal/shader.vert"
+#define CUBE_FRAGMENT_SHADER_PATH "C:/Users/tiyang/Desktop/CSE190Project4/Minimal/shader.frag"
 
 
-#define SPHERE_VERTEX_SHADER_PATH "C:/Users/degu/Desktop/CSE190Project4/Minimal/sphere.vert"
-#define SPHERE_FRAGMENT_SHADER_PATH "C:/Users/degu/Desktop/CSE190Project4/Minimal/sphere.frag"
+#define SPHERE_VERTEX_SHADER_PATH "C:/Users/tiyang/Desktop/CSE190Project4/Minimal/sphere.vert"
+#define SPHERE_FRAGMENT_SHADER_PATH "C:/Users/tiyang/Desktop/CSE190Project4/Minimal/sphere.frag"
 
-#define SKYBOX_VERTEX_SHADER_PATH "C:/Users/degu/Desktop/CSE190Project4/Minimal/skybox.vert"
-#define SKYBOX_FRAGMENT_SHADER_PATH "C:/Users/degu/Desktop/CSE190Project4/Minimal/skybox.frag"
+#define SKYBOX_VERTEX_SHADER_PATH "C:/Users/tiyang/Desktop/CSE190Project4/Minimal/skybox.vert"
+#define SKYBOX_FRAGMENT_SHADER_PATH "C:/Users/tiyang/Desktop/CSE190Project4/Minimal/skybox.frag"
+
+#define TABLE_VERTEX_SHADER_PATH "C:/Users/tiyang/Desktop/CSE190Project4/Minimal/table.vert"
+#define TABLE_FRAGMENT_SHADER_PATH "C:/Users/tiyang/Desktop/CSE190Project4/Minimal/table.frag"
 
 public:
 	static glm::mat4 P; // P for projection
@@ -676,11 +679,12 @@ public:
 		cubeShaderProgram = LoadShaders(CUBE_VERTEX_SHADER_PATH, CUBE_FRAGMENT_SHADER_PATH);
 		sphereShaderProgram = LoadShaders(SPHERE_VERTEX_SHADER_PATH, SPHERE_FRAGMENT_SHADER_PATH);
 		skyboxShaderProgram = LoadShaders(SKYBOX_VERTEX_SHADER_PATH, SKYBOX_FRAGMENT_SHADER_PATH);
+		tableShaderProgram = LoadShaders(TABLE_VERTEX_SHADER_PATH, TABLE_FRAGMENT_SHADER_PATH);
 
 		skybox = new Skybox();
 		skybox->toWorld = glm::mat4(1.0f);
-		cube = new Cube();
-		cube->toWorld = glm::translate(glm::scale(mat4(1.0f), glm::vec3(0.1f, 0.01f, 0.18f)), vec3(0.0f, 0.5f, -2.0f));
+		table = new Model("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/digital_x_free_25_ping_pong/X025_017.obj");
+		table->toWorld = glm::translate(glm::scale(mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f)), vec3(0.0f, -40.0f, -2.0f));
 		sphere = new Sphere();
 		sphere->toWorld = glm::translate(glm::scale(mat4(1.0f), vec3(10.0f, 10.0f, 10.0f)), vec3(0.0f, 10.0f, -10.0f));
 	}
@@ -690,14 +694,34 @@ public:
 	}
 
 	void render(const mat4 & projection, const mat4 & modelview) {
+
 		// Use the shader of programID
 		glUseProgram(skyboxShaderProgram);
 		//skybox->draw(skyboxShaderProgram, projection, modelview);
 		glUseProgram(cubeShaderProgram);
-		cube->draw(cubeShaderProgram, projection, modelview);
+		//cube->draw(cubeShaderProgram, projection, modelview);
 		//glUseProgram(sphereShaderProgram);
 		sphere->draw(cubeShaderProgram, projection, modelview);
+		glUseProgram(tableShaderProgram);
+		glm::vec3 pointLightPosition;
+		pointLightPosition = glm::vec3(-5.0f, 20.0f, -5.0f);
+		glUniform3f(glGetUniformLocation(tableShaderProgram, "pointLights[0].position"), pointLightPosition.x, pointLightPosition.y, pointLightPosition.z);
+		glUniform3f(glGetUniformLocation(tableShaderProgram, "pointLights[0].ambient"), 1.0f, 1.0f, 1.0f);
+		glUniform3f(glGetUniformLocation(tableShaderProgram, "pointLights[0].diffuse"), 1.0f, 1.0f, 1.0f);
+		glUniform3f(glGetUniformLocation(tableShaderProgram, "pointLights[0].specular"), 1.0f, 1.0f, 1.0f);
+		glUniform1f(glGetUniformLocation(tableShaderProgram, "pointLights[0].constant"), 1.0f);
+		glUniform1f(glGetUniformLocation(tableShaderProgram, "pointLights[0].linear"), 0.009f); // 0.09
+		glUniform1f(glGetUniformLocation(tableShaderProgram, "pointLights[0].quadratic"), 0.0032f); // 0.032
 
+		pointLightPosition = glm::vec3(5.0f, 20.0f, -5.0f);
+		glUniform3f(glGetUniformLocation(tableShaderProgram, "pointLights[1].position"), pointLightPosition.x, pointLightPosition.y, pointLightPosition.z);
+		glUniform3f(glGetUniformLocation(tableShaderProgram, "pointLights[1].ambient"), 1.0f, 1.0f, 1.0f);
+		glUniform3f(glGetUniformLocation(tableShaderProgram, "pointLights[1].diffuse"), 1.0f, 1.0f, 1.0f);
+		glUniform3f(glGetUniformLocation(tableShaderProgram, "pointLights[1].specular"), 1.0f, 1.0f, 1.0f);
+		glUniform1f(glGetUniformLocation(tableShaderProgram, "pointLights[1].constant"), 1.0f);
+		glUniform1f(glGetUniformLocation(tableShaderProgram, "pointLights[1].linear"), 0.009f); // 0.09
+		glUniform1f(glGetUniformLocation(tableShaderProgram, "pointLights[1].quadratic"), 0.0032f); // 0.032
+		table->draw(tableShaderProgram, projection, modelview);
 	}
 
 	void currentEye(int eyeIdx) {
