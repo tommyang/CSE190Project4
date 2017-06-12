@@ -152,22 +152,22 @@ void Skybox::loadCubemap() {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	// Select GL_MODULATE to mix texture with polygon color for shading:
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/left-ppm/nx.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/left-ppm/nx.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/left-ppm/ny.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/left-ppm/ny.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/left-ppm/nz.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/left-ppm/nz.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/left-ppm/px.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/left-ppm/px.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/left-ppm/py.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/left-ppm/py.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/left-ppm/pz.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/left-ppm/pz.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
 	// Sets texture parameters
@@ -185,22 +185,22 @@ void Skybox::loadCubemap() {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	// Select GL_MODULATE to mix texture with polygon color for shading:
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/right-ppm/nx.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/right-ppm/nx.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/right-ppm/ny.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/right-ppm/ny.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/right-ppm/nz.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/right-ppm/nz.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/right-ppm/px.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/right-ppm/px.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/right-ppm/py.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/right-ppm/py.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/right-ppm/pz.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/right-ppm/pz.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
 	// Sets texture parameters
@@ -218,22 +218,22 @@ void Skybox::loadCubemap() {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	// Select GL_MODULATE to mix texture with polygon color for shading:
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/self-ppm/nx.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/self-ppm/nx.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/self-ppm/ny.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/self-ppm/ny.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/self-ppm/nz.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/self-ppm/nz.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/self-ppm/px.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/self-ppm/px.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/self-ppm/py.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/self-ppm/py.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
-	image = loadPPM("C:/Users/tiyang/Desktop/CSE190Project4/Minimal/self-ppm/pz.ppm", width, height);
+	image = loadPPM("C:/Users/degu/Desktop/CSE190Project4/Minimal/self-ppm/pz.ppm", width, height);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	free(image);
 	// Sets texture parameters
