@@ -35,17 +35,23 @@ public:
     
     std::vector<unsigned int> indices;
     std::vector<glm::vec3> vertices;
+	std::vector<glm::vec2> uvs;
     
     Sphere();
     ~Sphere();
     
     glm::mat4 toWorld;
+
+	glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f);
     
     GLuint VBO, VAO, EBO;
-    GLuint uProjection, uModel, uView;
+    GLuint uProjection, uModel, uView, texture_ID, uv_ID;
     
     void draw(GLuint, glm::mat4 P, glm::mat4 V);
     void update();
+
+	GLuint loadCubemap();
+	unsigned char* loadPPM(const char* filename, int& width, int& height);
 };
 
 #endif /* Sphere_hpp */

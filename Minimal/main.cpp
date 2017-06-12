@@ -648,6 +648,7 @@ protected:
 #include "Sphere.h"
 #include "Model.h"
 #include "Skybox.h"
+#include "Audio.h"
 
 #include "rpc/client.h"
 #include "rpc/server.h"
@@ -657,14 +658,17 @@ protected:
 rpc::server srv(8080);
 
 struct SimScene {
+	Cube * otherhand;
 	Cube * otherhead;
 	Cube * myhand;
-	Cube * otherhand;
+	Cube * myhead;
 
 	Model * table;
 	Sphere * sphere;	
 	Skybox * skybox;
 	GLint cubeShaderProgram, sphereShaderProgram, skyboxShaderProgram, tableShaderProgram;
+
+	Audio * audio;
 
 	//bool buttonAPressed = false, buttonBPressed = false, buttonXPressed = false;
 	//int buttonA = 0, buttonB = 0, buttonX = 0;
@@ -687,6 +691,12 @@ public:
 	static glm::mat4 V; // V for view
 	int curEyeIdx;
 
+	glm::vec3 myhandv = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 otherhandv = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	bool myhandintersect = false;
+	bool otherhandintersect = false;
+
 	SimScene() {
 		cubeShaderProgram = LoadShaders(CUBE_VERTEX_SHADER_PATH, CUBE_FRAGMENT_SHADER_PATH);
 		sphereShaderProgram = LoadShaders(SPHERE_VERTEX_SHADER_PATH, SPHERE_FRAGMENT_SHADER_PATH);
@@ -696,12 +706,20 @@ public:
 		skybox = new Skybox();
 		skybox->toWorld = glm::mat4(1.0f);
 		table = new Model("C:/Users/degu/Desktop/CSE190Project4/Minimal/digital_x_free_25_ping_pong/X025_017.obj");
-		table->toWorld = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(0.02f, 0.02f, 0.02f)), glm::vec3(0.0f, -40.0f, -2.0f));
+		table->toWorld = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.5f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.02f, 0.02f, 0.02f));
 		sphere = new Sphere();
-		sphere->toWorld = glm::translate(glm::scale(mat4(1.0f), vec3(10.0f, 10.0f, 10.0f)), vec3(0.0f, 10.0f, -10.0f));
+		sphere->toWorld = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.5f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.03f, 0.03f, 0.03f));
 
 		myhand = new Cube();
 		otherhand = new Cube();
+		myhead = new Cube();
+		otherhead = new Cube();
+		otherhead->toWorld = glm::translate(glm::mat4(1.0f), glm::vec3(-1.8f, 1.5f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
+
+		std::vector<std::string> audioFiles;
+		audioFiles.push_back("C:/Users/degu/Desktop/CSE190Project1/Audio/whoosh.wav");
+		audioFiles.push_back("C:/Users/degu/Desktop/CSE190Project1/Audio/Calypso.wav");
+		audio = new Audio(audioFiles);
 		
 		srv.bind("setHandTransf", [this](string str) {
 			float tmp[16] = { 0.0f };
@@ -709,6 +727,13 @@ public:
 			for (int i = 0; i < 16; i++) is >> tmp[i];
 			otherhand->toWorld = glm::make_mat4(tmp);
 			std::cout << "set leap hand pos!!!!" << std::endl;
+		});
+		srv.bind("setHandv", [this](string str) {
+			float tmp[3] = { 0.0f };
+			istringstream is(str);
+			for (int i = 0; i < 3; i++) is >> tmp[i];
+			otherhandv = glm::make_vec3(tmp);
+			std::cout << "set leap hand velocity!!!!" << std::endl;
 		});
 		srv.bind("getHandTransf", [this]() {
 			float ret[16] = { 0.0 };
@@ -723,11 +748,89 @@ public:
 			std::cout << "get oculus hand pos!!!!!" << std::endl;
 			return os.str();
 		});
+		srv.bind("getHeadTransf", [this]() {
+			float ret[16] = { 0.0 };
+			const float *pSource = (const float *)glm::value_ptr(myhead->toWorld);
+			for (int i = 0; i < 16; i++) {
+				ret[i] = pSource[i];
+			}
+			ostringstream os;
+			for (int i = 0; i<16; i++)
+				os << ret[i] << " ";
+
+			std::cout << "get oculus hand pos!!!!!" << std::endl;
+			return os.str();
+		});
+		srv.bind("getSphereTransf", [this]() {
+			float ret[16] = { 0.0 };
+			const float *pSource = (const float *)glm::value_ptr(sphere->toWorld);
+			for (int i = 0; i < 16; i++) {
+				ret[i] = pSource[i];
+			}
+			ostringstream os;
+			for (int i = 0; i<16; i++)
+				os << ret[i] << " ";
+
+			std::cout << "get sphere pos!!!!!" << std::endl;
+			return os.str();
+		});
 		srv.async_run(1);
 	}
 
 	void update() {
-		//cube->toWorld = glm::mat4(1.0f);
+		glm::vec3 myhandpos = myhand->toWorld * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+		glm::vec3 otherhandpos = otherhand->toWorld * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+		glm::vec3 spherepos = sphere->toWorld * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+		if (intersection(myhandpos, spherepos)) {
+			if (!myhandintersect) {
+				myhandintersect = true;
+				sphere->velocity = getV(myhandv, sphere->velocity);
+				audio->play(0);
+			}
+			else myhandintersect = false;
+		}
+		printf("hand velocity: %f %f %f\n", myhandv.x, myhandv.y, myhandv.z);
+		printf("ball velocity: %f %f %f\n", sphere->velocity.x, sphere->velocity.y, sphere->velocity.z);
+		//sphere->update();
+		if (intersection(otherhandpos, spherepos)) {
+			if (!otherhandintersect && otherhandpos != glm::vec3(1.0f, 1.0f, 1.0f)) {
+				otherhandintersect = true;
+				sphere->velocity = getV(otherhandv, sphere->velocity);
+				audio->play(0);
+			}
+			else otherhandintersect = false;
+		}
+		sphere->update();
+		//printf("pos: %f %f %f\nvelocity: %f %f %f\n", spherepos.x, spherepos.y, spherepos.z, sphere->velocity.x, sphere->velocity.y, sphere->velocity.z);
+	}
+
+	bool intersection(glm::vec3 handpos, glm::vec3 ballpos) {
+		glm::vec3 diffvec = handpos - ballpos;
+		float dis = glm::dot(diffvec,diffvec);
+		printf("dis: %f\n", dis);
+		return dis < 0.03f;
+	}
+
+	glm::vec3 getV(glm::vec3 handv, glm::vec3 ballv) {
+		glm::vec3 hv = myNorm(handv);
+		glm::vec3 bv = myNorm(ballv);
+		float mag = glm::sqrt(glm::abs(glm::dot(ballv, ballv)));
+		float sign = glm::dot(hv, bv) > 0 ? 1.0f : -1.0f;
+		//glm::vec3 rv = (hv * 2.0f + bv)*mag + handv;
+		glm::vec3 rv;
+		float handfac = 1.0f / 1000.0f;
+		if( sign < 0 ) rv = (hv*(2.0f) + bv) * mag;
+		else {
+			if (glm::length(ballv * glm::dot(ballv, hv)) < glm::length(handv)) rv = ballv;
+			else rv = (sign*hv*(2.0f) + bv) * mag;
+		}
+		return rv + handv*handfac;
+	}
+
+	glm::vec3 myNorm(glm::vec3 h) {
+		float hmag = glm::sqrt(glm::dot(h, h));
+		if (hmag < 1e-7) return h;
+		else return h / hmag;
 	}
 
 	void render(const mat4 & projection, const mat4 & modelview) {
@@ -739,9 +842,10 @@ public:
 		glUseProgram(cubeShaderProgram);
 		myhand->draw(cubeShaderProgram, projection, modelview);
 		otherhand->draw(cubeShaderProgram, projection, modelview);
+		otherhead->draw(cubeShaderProgram, projection, modelview);
 
 		glUseProgram(sphereShaderProgram);
-		sphere->draw(cubeShaderProgram, projection, modelview);
+		sphere->draw(sphereShaderProgram, projection, modelview);
 
 		glUseProgram(tableShaderProgram);
 		glm::vec3 pointLightPosition;
@@ -763,6 +867,8 @@ public:
 		glUniform1f(glGetUniformLocation(tableShaderProgram, "pointLights[1].linear"), 0.009f); // 0.09
 		glUniform1f(glGetUniformLocation(tableShaderProgram, "pointLights[1].quadratic"), 0.0032f); // 0.032
 		table->draw(tableShaderProgram, projection, modelview);
+
+		audio->play(1);
 	}
 
 	void currentEye(int eyeIdx) {
@@ -833,8 +939,15 @@ protected:
 		*/
 		double displayMidpointSeconds = ovr_GetPredictedDisplayTime(_session, frame);
 		ovrTrackingState trackState = ovr_GetTrackingState(_session, displayMidpointSeconds, ovrTrue);
+
 		ovrPosef rightPose = trackState.HandPoses[ovrHand_Right].ThePose;
 		simScene->myhand->toWorld = ovr::toGlm(rightPose) * glm::scale(glm::mat4(1.0f), glm::vec3(0.05f, 0.05f, 0.05f));
+		ovrVector3f tmp = trackState.HandPoses[ovrHand_Right].LinearVelocity;
+		simScene->myhandv = glm::vec3(tmp.x, tmp.y, tmp.z);
+
+		ovrPosef headPose = trackState.HeadPose.ThePose;
+		simScene->myhead->toWorld = ovr::toGlm(headPose) * glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
+
 		simScene->update();
 	}
 
