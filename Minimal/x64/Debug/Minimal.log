@@ -1,0 +1,3 @@
+﻿  main.cpp
+c:\users\degu\desktop\cse190project4\minimal\mesh.h(116): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+c:\users\degu\desktop\cse190project4\rpclib\include\rpc\msgpack\pack.hpp(190): fatal error C1189: #error:  msgpack-c supports only big endian and little endian
